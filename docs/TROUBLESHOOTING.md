@@ -27,6 +27,10 @@ sdk.dir=/Users/[YOUR_USER_NAME]/Library/Android/sdk
 
 > Note: We're still not quite sure as to the cause of this error. Possible factors include differing versions of Cocoapods or >Xcode.
 
+**Q:** I've just opened the android studio project, but I can't run anything and I'm getting this error: `LocationAwareException: New Gradle Sync is not supported due to containing Kotlin modules`. 
+
+**A:** This can happen when you choose to `open an existing Android Studio project`. The project may have existing configurations that's confusing Android Studio. Close the Android Studio window, and in the Welcome to Android Studio window choose the `Import Project` option on the right. Importing the project this way should point Android Studio in the right direction and import correctly. If this doesn't work, try deleting the .idea folder from the root directory and try `Import Project` again.
+
 ## More to Come!
 
 [Let us know](../CONTACT_US.md) what issues you run into

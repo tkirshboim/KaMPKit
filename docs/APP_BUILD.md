@@ -16,7 +16,7 @@ git clone https://github.com/touchlab/KaMPStarter.git
 ```
 
 ### 2) Build Android
-1. Open the project in Android Studio/IntelliJ and wait for indexing to finish.
+1. Open the project in Android Studio/IntelliJ using the `Import Project` option. and wait for indexing to finish. (Note: choosing the `open an existing Android Studio project` can cause problems, so it's safer to choose import)
 1. Make sure you see the run config for the Android app                    
 ![](runconfig.png)
 1. Run the Android app on either the Emulator or a phone. If the app builds correctly, you should see this:
