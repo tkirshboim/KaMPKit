@@ -21,10 +21,11 @@ actual val platformModule: Module = module {
         )
     }
 
+    single<SharedPreferences> {
+        get<Context>().getSharedPreferences("KAMPSTARTER_SETTINGS", Context.MODE_PRIVATE)
+    }
     single<Settings> {
-        val context: Context = get()
-        val preferences: SharedPreferences =
-            context.getSharedPreferences("KAMPSTARTER_SETTINGS", Context.MODE_PRIVATE)
+        val preferences: SharedPreferences = get()
         AndroidSettings(preferences)
     }
 

@@ -9,15 +9,21 @@ import com.squareup.sqldelight.db.SqlDriver
 import com.squareup.sqldelight.drivers.native.NativeSqliteDriver
 import kotlinx.cinterop.ObjCClass
 import kotlinx.cinterop.getOriginalKotlinClass
+import org.koin.core.Koin
+import org.koin.core.KoinApplication
+import org.koin.core.module.Module
 import org.koin.core.parameter.parametersOf
 import org.koin.core.qualifier.Qualifier
+import org.koin.core.qualifier.named
 import org.koin.dsl.module
 import platform.Foundation.NSUserDefaults
 
+val userDefaultsQualifier = named("userDefaults")
 actual val platformModule = module {
     single<Settings> {
-        val userDefaults = NSUserDefaults(suiteName = "KAMPSTARTER_SETTINGS")
-        AppleSettings(userDefaults)
+        // Note that Koin can't bind Objective-C types because they have no KClass. So we bind NSUserDefaults
+        //  as Any instead and ue use a Qualifier to specify what we're looking for.
+        AppleSettings(get<Any>(userDefaultsQualifier) as NSUserDefaults)
     }
     single<SqlDriver> { NativeSqliteDriver(KampstarterDb.Schema, "kampstarterdb") }
 
@@ -25,21 +31,28 @@ actual val platformModule = module {
     factory { (tag: String?) -> if (tag != null) baseKermit.withTag(tag) else baseKermit }
 }
 
-object KoinIOS {
-    val koin = initKoin { }
+fun KoinApplication.module(moduleDeclaration: Module.() -> Unit) {
+    modules(org.koin.dsl.module(moduleDeclaration = moduleDeclaration))
+}
 
-    fun get(objCClass: ObjCClass, qualifier: Qualifier?, parameter: Any): Any {
-        val kClazz = getOriginalKotlinClass(objCClass)!!
-        return koin.koin.get(kClazz, qualifier) { parametersOf(parameter) }
-    }
+fun Module.single(
+    qualifier: Qualifier,
+    definition: () -> Any
+) {
+    single(qualifier) { definition() }
+}
 
-    fun get(objCClass: ObjCClass, parameter: Any): Any {
-        val kClazz = getOriginalKotlinClass(objCClass)!!
-        return koin.koin.get(kClazz, null) { parametersOf(parameter) }
-    }
+fun Koin.get(objCClass: ObjCClass, qualifier: Qualifier?, parameter: Any): Any {
+    val kClazz = getOriginalKotlinClass(objCClass)!!
+    return get(kClazz, qualifier) { parametersOf(parameter) }
+}
 
-    fun get(objCClass: ObjCClass, qualifier: Qualifier?): Any {
-        val kClazz = getOriginalKotlinClass(objCClass)!!
-        return koin.koin.get(kClazz, qualifier, null)
-    }
+fun Koin.get(objCClass: ObjCClass, parameter: Any): Any {
+    val kClazz = getOriginalKotlinClass(objCClass)!!
+    return get(kClazz, null) { parametersOf(parameter) }
+}
+
+fun Koin.get(objCClass: ObjCClass, qualifier: Qualifier?): Any {
+    val kClazz = getOriginalKotlinClass(objCClass)!!
+    return get(kClazz, qualifier, null)
 }
